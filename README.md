@@ -2,6 +2,11 @@
 
 Sample architecture with Go, showing how the different pieces are tied together.
 
+## Architecture
+
+![architecture](assets/architecture.png)
+
+TODO: Cleanup the diagram, and add more services
 
 ## Start
 

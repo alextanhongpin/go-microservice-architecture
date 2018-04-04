@@ -1,0 +1,64 @@
+digraph G {
+
+
+  subgraph cluster_0 {
+		label = Service
+		echo
+	}
+
+  subgraph cluster_1 {
+		label = Storage
+		"N/A Postgres"
+	}
+
+  subgraph cluster_2 {
+		label = Telemetry
+		Jaeger Prometheus
+	}
+
+  subgraph cluster_3 {
+		label = Cache
+		"N/A Redis"
+	}
+
+  subgraph cluster_4 {
+		label = Logging
+		"N/A Fluentd"
+	}
+
+  subgraph cluster_5 {
+		label = Visualization
+		"N/A Kibana" "N/A Metabase" Grafana
+	}
+
+	subgraph cluster_6 {
+		label = "Key/Value Store"
+		Consul
+	}
+
+	subgraph cluster_7 {
+		label = "Service Discovery"
+		Registrator Consul
+	}
+
+	subgraph cluster_8 {
+		label = Security
+		Vault
+	}
+
+	subgraph cluster_9 {
+		label = "Load Balancer"
+		traefik
+	}
+
+
+	traefik -> echo -> "N/A Postgres" -> echo
+
+       echo -> Registrator -> Consul
+       Registrator -> traefik -> {Jaeger; Prometheus}
+       echo -> "N/A Fluentd"
+       echo -> "N/A Redis" -> echo
+       Consul -> {echo; traefik}
+       Prometheus -> Grafana
+       echo -> Vault
+}
