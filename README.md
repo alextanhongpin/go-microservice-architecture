@@ -48,3 +48,8 @@ Output:
 {"hostname":"a27f75db0290","text":"hello"}
 {"hostname":"5a9726496329","text":"hello"}
 ```
+
+## TODO
+
+- cleanup code
+- create kubernetes example
