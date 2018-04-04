@@ -1,0 +1,41 @@
+version: '3.1'
+services:
+  registrator:
+    image: gliderlabs/registrator:vendor
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    command: -internal=true -deregister=always -ip=127.0.0.1 -cleanup -tags=registrator consul:8500
+    network_mode: host
+
+  consul:
+    image: consul:1.0.6
+    restart: always
+    ports:
+      - 127.0.0.1:8500:8500
+    networks:
+      default:
+    # environment:
+      # - SERVICE_8300_IGNORE=true
+  # docker-compose up -d --scale node=10
+  node:
+    image: alextanhongpin/echo
+    environment:
+    - SERVICE_NAME=echo
+    - SERVICE_TAGS=echo,service
+    - SERVICE_REGION=ap-southeast-1
+    # - SERVICE_IGNORE=always
+    networks:
+      default:
+
+# Services: mathsvc, thissvc, etc
+# Storage: mongo, postgres
+# Telemetry: Jaeger, Prometheus
+# Cache: Redis
+# Logging: EFK stack
+# Visualization: Kibana, Grafana
+# Key-Value, Service Discovery: Registrator, Consul
+# Security: Vault
+# Load-Balancer: Traefik
+networks:
+  default:
