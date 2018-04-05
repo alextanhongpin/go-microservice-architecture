@@ -14,20 +14,14 @@ admin:
 #     kind: jittered
 #     minMs: 10
 #     maxMs: 10000
+
 storage:
   kind: io.l5d.inMemory
   namespaces:
-    default: |
-      /grpc => /host;
-      /svc => /host/web;
-    consul_ingress: |
-      /svc => /#/io.l5d.consul_ingress/dc1;
-      /host        => /srv;
-      /http/1.1/*  => /host;
-    consul_egress: |
-      /svc => /#/io.l5d.consul_egress/dc1;
-      /host        => /srv;
-      /http/1.1/*  => /host;
+    linker_ingress: |
+      /svc => /#/io.l5d.consul_ingress/.local;
+    linker_egress: |
+      /svc => /#/io.l5d.consul_egress/.local;
 
 namers:
 - kind: io.l5d.consul
@@ -35,11 +29,11 @@ namers:
   host: consul
   port: 8500
   includeTag: false
-  # useHealthCheck: true
-  # healthStatuses:
-  #   - "passing"
-  #   - "warning"
-  setHost: true
+  useHealthCheck: false
+  healthStatuses:
+    - "passing"
+    - "warning"
+  setHost: false # Must be false, else it won't work
   consistencyMode: stale
   failFast: true
   preferServiceAddress: true
@@ -49,10 +43,10 @@ namers:
   host: consul
   port: 8500
   includeTag: false
-  # useHealthCheck: true
-  # healthStatuses:
-  #   - "passing"
-  #   - "warning"
+  useHealthCheck: false
+  healthStatuses:
+    - "passing"
+    - "warning"
   setHost: true
   consistencyMode: stale
   failFast: true

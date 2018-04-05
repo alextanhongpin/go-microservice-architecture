@@ -25,6 +25,12 @@ routers:
   label: ingress
   # dtab: |
   #   /svc => /#/io.l5d.consul_ingress/dc1;
+  service:
+    responseClassifier:
+      kind: io.l5d.http.retryableIdempotent5XX
+    retries:
+      budget:
+        percentCanRetry: 0.1
   # service:
   #   kind: io.l5d.static
   #   configs:
@@ -55,12 +61,25 @@ routers:
     transformers:
     - kind: io.l5d.port
       port: 4141
-  # originator: true
+  client:
+   requeueBudget:
+    percentCanRetry: 5.0
+   loadBalancer:
+    kind: ewma
+    maxEffort: 10
+    decayTimeMs: 15000
+  originator: true
 
 - protocol: http
   label: outgress
   # dtab: |
   #   /svc => /#/io.l5d.consul_egress/dc1;
+  service:
+    responseClassifier:
+      kind: io.l5d.http.retryableIdempotent5XX
+    retries:
+      budget:
+        percentCanRetry: 0.1
   # service:
   #   kind: io.l5d.static
   #   configs:
@@ -90,7 +109,14 @@ routers:
       maxSeconds: 600
     transformers:
     # filter instances to only include those on this host
-    # - kind: io.l5d.localhost
+    # - kind: io.l5d.localhost # localhost does not work
     - kind: io.l5d.specificHost
       host: docker.for.mac.localhost
+  client:
+   requeueBudget:
+    percentCanRetry: 5.0
+   loadBalancer:
+    kind: ewma
+    maxEffort: 10
+    decayTimeMs: 15000
 
