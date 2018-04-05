@@ -5,14 +5,18 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
-    # setting `-internal=true` will cause error
+    # setting `-internal=true` will cause linkerd and namerd to fail silently
     command: -ip=docker.for.mac.localhost -deregister=always -cleanup -tags=registrator consul://consul:8500
+    networks:
+      discovery:
 
   consul:
     image: consul:1.0.6
     restart: always
     ports:
       - 127.0.0.1:8500:8500
+    networks:
+      discovery:
 
   # traefik:
   #   image: traefik:1.6
@@ -65,8 +69,8 @@ services:
     volumes:
       - $PWD/config/linkerd.yaml:/config.yaml
     command: /config.yaml
-    depends_on:
-      - namerd
+    networks:
+      discovery:
     # Health check: "path": "/admin/ping"
 
   namerd:
@@ -78,19 +82,48 @@ services:
     volumes:
       - $PWD/config/namerd.yaml:/config.yaml
     command: /config.yaml
+    networks:
+      discovery:
 
-
-  node:
-    image: alextanhongpin/echo
+  # Demonstrate service discovery and load-balancing, retries, circuit-breaker etc with traefik
+  echo:
+    image: alextanhongpin/echo:0.0.3
     restart: always
     environment:
       - SERVICE_NAME=echo
       - SERVICE_REGION=dc1
-      - SERVICE_TAGS=svc
-      # - SERVICE_TAGS=traefik.enable=true,traefik.backend=echo,traefik.frontend.entryPoints=http,traefik.frontend.rule=Host:echo.consul.localhost,traefik.frontend.passHostHeader=true
-      # ,traefik.backend.circuitbreaker.expression='NetworkErrorRatio() > 0.5',traefik.backend.maxconn.amount=10,traefik.backend.maxconn.extractorfunc=client.ip
+      - SERVICE_TAGS=traefik.enable=true,traefik.backend=echo,traefik.frontend.entryPoints=http,traefik.frontend.rule=Host:echo.consul.localhost,traefik.frontend.passHostHeader=true,traefik.backend.circuitbreaker.expression="NetworkErrorRatio() > 0.5",traefik.backend.maxconn.amount=10,traefik.backend.maxconn.extractorfunc=client.ip
     ports:
       - 127.0.0.1::8080
+    networks:
+      proxy:
+
+  # Demonstrates blue-green deployment, circuit-breaker etc with Linkerd and Namerd
+  blue:
+    image: alextanhongpin/echo:0.0.3
+    restart: always
+    environment:
+      - SERVICE_NAME=blue
+      - SERVICE_REGION=dc1
+      - SERVICE_TAGS=blue
+      - TEXT=blue
+    ports:
+      - 127.0.0.1::8080
+    networks:
+      proxy:
+  
+  green:
+    image: alextanhongpin/echo:0.0.3
+    restart: always
+    environment:
+      - SERVICE_NAME=green
+      - SERVICE_REGION=dc1
+      - SERVICE_TAGS=green
+      - TEXT=green
+    ports:
+      - 127.0.0.1::8080
+    networks:
+      proxy:
 
 # Services: mathsvc, thissvc, etc
 # Storage: mongo, postgres
@@ -101,6 +134,66 @@ services:
 # Key-Value, Service Discovery: Registrator, Consul
 # Security: Vault
 # Load-Balancer: Traefik
-# networks:
-#   discovery:
-#   proxy:
+
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:6.2.3
+  #   environment:
+  #     - discovery.type=single-node
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     - "http.port=9200"
+  #     - "http.cors.allow-origin=http://127.0.0.1:1358"
+  #     - "http.cors.enabled=true"
+  #     - "http.cors.allow-headers=X-Requested-With,X-Auth-Token,Content-Type,Content-Length,Authorization"
+  #     - "http.cors.allow-credentials=true"
+  #   ports:
+  #     - 127.0.0.1:9200:9200
+  #     - 127.0.0.1:9300:9300
+  #   volumes:
+  #     - ./tmp/elastichsearch:/usr/share/elasticsearch/data
+  #   networks:
+  #     - esnet
+
+  # dejavu:
+  #   image: appbaseio/dejavu:latest
+  #   ports:
+  #     - 127.0.0.1:1358:1358
+  #   networks:
+  #     - esnet
+
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:6.2.3
+  #   environment:
+  #     ELASTICSEARCH_URL: http://elasticsearch:9200
+  #   ports:
+  #     - 127.0.0.1:5601:5601
+  #   networks:
+  #     - esnet
+
+  # # You need to build the fluentd docker image
+  # # to install the elasticsearch gem plugin
+  # fluentd:
+  #   build: ./fluentd
+  #   ports:
+  #     - 127.0.0.1:24224:24224
+  #     - 127.0.0.1:24224:24224/udp
+  #   volumes:
+  #     - ./config:/fluentd/etc
+  #   environment:
+  #     - FLUENTD_CONF=fluentd.conf
+    
+  # web:
+  #   image: httpd
+  #   ports:
+  #     - 127.0.0.1:80:80
+  #   logging:
+  #     driver: fluentd
+  #     options:
+  #       tag: docker.httpd
+  #   networks:
+  #     - esnet
+
+networks:
+  discovery:
+  proxy:
+  # esnet:
+  #   external: true

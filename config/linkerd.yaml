@@ -95,7 +95,6 @@ routers:
   interpreter:
     kind: io.l5d.namerd.http
     experimental: true
-    # dst: /$/inet/namerd/4180
     dst: /$/inet/namerd/4180
     namespace: consul_egress
     retry:
