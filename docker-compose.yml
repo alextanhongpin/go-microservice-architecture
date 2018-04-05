@@ -87,11 +87,11 @@ services:
 
   # Demonstrate service discovery and load-balancing, retries, circuit-breaker etc with traefik
   echo:
-    image: alextanhongpin/echo:0.0.3
+    image: alextanhongpin/echo
     restart: always
     environment:
       - SERVICE_NAME=echo
-      - SERVICE_REGION=dc1
+      - SERVICE_REGION=ap-southeast-1
       - SERVICE_TAGS=traefik.enable=true,traefik.backend=echo,traefik.frontend.entryPoints=http,traefik.frontend.rule=Host:echo.consul.localhost,traefik.frontend.passHostHeader=true,traefik.backend.circuitbreaker.expression="NetworkErrorRatio() > 0.5",traefik.backend.maxconn.amount=10,traefik.backend.maxconn.extractorfunc=client.ip
     ports:
       - 127.0.0.1::8080
@@ -100,11 +100,11 @@ services:
 
   # Demonstrates blue-green deployment, circuit-breaker etc with Linkerd and Namerd
   blue:
-    image: alextanhongpin/echo:0.0.3
+    image: alextanhongpin/echo
     restart: always
     environment:
       - SERVICE_NAME=blue
-      - SERVICE_REGION=dc1
+      - SERVICE_REGION=ap-southeast-1
       - SERVICE_TAGS=blue
       - TEXT=blue
     ports:
@@ -113,11 +113,11 @@ services:
       proxy:
   
   green:
-    image: alextanhongpin/echo:0.0.3
+    image: alextanhongpin/echo
     restart: always
     environment:
       - SERVICE_NAME=green
-      - SERVICE_REGION=dc1
+      - SERVICE_REGION=ap-southeast-1
       - SERVICE_TAGS=green
       - TEXT=green
     ports:

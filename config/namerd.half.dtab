@@ -1,0 +1,2 @@
+/svc => /#/io.l5d.consul_egress/dc1;
+/svc/blue => /#/io.l5d.consul_egress/dc1/blue & /#/io.l5d.consul_egress/dc1/green;
