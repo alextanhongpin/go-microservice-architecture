@@ -2,26 +2,27 @@ admin:
   ip: 0.0.0.0
   port: 9991
 
-# storage:
-#   kind: io.l5d.consul
-#   host: consul
-#   port: 8500
-#   datacenter: dc1
-#   pathPrefix: /namerd/dtabs
-#   readConsistencyMode: stale
-#   writeConsistencyMode: stale
-#   backoff:
-#     kind: jittered
-#     minMs: 10
-#     maxMs: 10000
-
 storage:
-  kind: io.l5d.inMemory
-  namespaces:
-    linker_ingress: |
-      /svc => /#/io.l5d.consul_ingress/.local;
-    linker_egress: |
-      /svc => /#/io.l5d.consul_egress/.local;
+  kind: io.l5d.consul
+  host: consul
+  port: 8500
+  datacenter: dc1
+  pathPrefix: /namerd/dtabs
+  readConsistencyMode: stale
+  writeConsistencyMode: stale
+  backoff:
+    kind: jittered
+    minMs: 10
+    maxMs: 10000
+
+## Uncomment to enable in-memory storage. NOTE: Don't use this in production!
+# storage:
+#   kind: io.l5d.inMemory
+#   namespaces:
+#     consul_ingress: |
+#       /svc => /#/io.l5d.consul_ingress/dc1;
+#     consul_egress: |
+#       /svc => /#/io.l5d.consul_egress/dc1;
 
 namers:
 - kind: io.l5d.consul

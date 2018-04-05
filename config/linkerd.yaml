@@ -5,24 +5,16 @@ admin:
   ip: 0.0.0.0
   port: 9990
 
+usage:
+  orgId: alextanhongpin
+  enabled: false
+
 # telemetry:
 # - kind: io.l5d.prometheus
 
-# namers:
-# - kind: io.l5d.consul
-#   host: consul
-#   port: 8500
-#   includeTag: false
-#   useHealthCheck: true
-#   healthStatuses:
-#     - "passing"
-#     - "warning"
-#   setHost: true
-#   consistencyMode: stale
-
 routers:
-- protocol: http
-  label: ingress
+- label: ingress
+  protocol: http
   # dtab: |
   #   /svc => /#/io.l5d.consul_ingress/dc1;
   service:
@@ -53,6 +45,7 @@ routers:
   interpreter:
     kind: io.l5d.namerd.http
     experimental: true
+    # dst: /$/inet/namerd/4180
     dst: /$/inet/namerd/4180
     namespace: consul_ingress
     retry:
@@ -70,16 +63,16 @@ routers:
     decayTimeMs: 15000
   originator: true
 
-- protocol: http
-  label: outgress
+- label: outgress
+  protocol: http
   # dtab: |
   #   /svc => /#/io.l5d.consul_egress/dc1;
-  service:
-    responseClassifier:
-      kind: io.l5d.http.retryableIdempotent5XX
-    retries:
-      budget:
-        percentCanRetry: 0.1
+  # service:
+  #   responseClassifier:
+  #     kind: io.l5d.http.retryableIdempotent5XX
+  #   retries:
+  #     budget:
+  #       percentCanRetry: 0.1
   # service:
   #   kind: io.l5d.static
   #   configs:
@@ -102,6 +95,7 @@ routers:
   interpreter:
     kind: io.l5d.namerd.http
     experimental: true
+    # dst: /$/inet/namerd/4180
     dst: /$/inet/namerd/4180
     namespace: consul_egress
     retry:
@@ -112,11 +106,11 @@ routers:
     # - kind: io.l5d.localhost # localhost does not work
     - kind: io.l5d.specificHost
       host: docker.for.mac.localhost
-  client:
-   requeueBudget:
-    percentCanRetry: 5.0
-   loadBalancer:
-    kind: ewma
-    maxEffort: 10
-    decayTimeMs: 15000
+  # client:
+  #  requeueBudget:
+  #   percentCanRetry: 5.0
+  #  loadBalancer:
+  #   kind: ewma
+  #   maxEffort: 10
+  #   decayTimeMs: 15000
 
