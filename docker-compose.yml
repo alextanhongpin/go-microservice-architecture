@@ -7,32 +7,14 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock
     command: -internal=true -deregister=always -ip=127.0.0.1 -cleanup -tags=registrator consul:8500
     network_mode: host
-    environment:
-      - SERVICE_IGNORE=true
 
   consul:
     image: consul:1.0.6
     restart: always
     ports:
       - 127.0.0.1:8500:8500
-    environment:
-      - SERVICE_IGNORE=true
-    networks:
-      discovery:
-
-  node:
-    image: alextanhongpin/echo
-    restart: always
-    environment:
-      - SERVICE=echo
-      - SERVICE_NAME=echo
-      - SERVICE_TAGS=echo,service
-      - SERVICE_REGION=ap-southeast-1
-      - SERVICE_TAGS=traefik.enable=true,traefik.backend=echo,traefik.frontend.entryPoints=http,traefik.frontend.rule=Host:echo.consul.localhost,traefik.frontend.passHostHeader=true,traefik.backend.circuitbreaker.expression=NetworkErrorRatio() > 0.5,traefik.backend.maxconn.amount=10,traefik.backend.maxconn.extractorfunc=client.ip
-    ports:
-      - 127.0.0.1::8080
-    networks:
-      proxy:
+    # networks:
+    #   proxy:
 
   traefik:
     image: traefik:1.6
@@ -43,10 +25,8 @@ services:
     volumes:
       - $PWD/config/traefik.toml:/etc/traefik/traefik.toml
       - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - SERVICE_IGNORE=true
-    networks:
-      proxy:
+    # networks:
+    #   proxy:
 
   tracing:
     image: jaegertracing/all-in-one:1.3.0
@@ -63,8 +43,8 @@ services:
       - COLLECTOR_ZIPKIN_HTTP_PORT=9411
     environment:
       - SERVICE_IGNORE=true
-    networks:
-      proxy:
+    # networks:
+    #   proxy:
   
   prometheus:
     image: prom/prometheus:v2.2.1
@@ -73,10 +53,8 @@ services:
       - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - 127.0.0.1:9090:9090
-    environment:
-      - SERVICE_IGNORE=true
-    networks:
-      proxy:
+    # networks:
+    #   proxy:
   
   grafana:
     image: grafana/grafana:5.0.4
@@ -85,8 +63,54 @@ services:
       - 127.0.0.1:3000:3000
     environment:
       - SERVICE_IGNORE=true
-    networks:
-      proxy:
+    # networks:
+    #   proxy:
+
+  linkerd:
+    image: buoyantio/linkerd:1.3.6
+    ports:
+      - 127.0.0.1:9990:9990 # Admin
+      - 127.0.0.1:4140:4140 # Ingress/Outgoing
+      - 127.0.0.1:4141:4141 # Outgress/Incoming
+    volumes:
+      - $PWD/config/linkerd.yaml:/config.yaml
+    command: /config.yaml
+    # networks:
+    #   proxy:
+    depends_on:
+      - namerd
+    # network_mode: host
+    # privileged: true
+    # Health check: "path": "/admin/ping"
+
+  namerd:
+    image: buoyantio/namerd:1.3.6
+    ports:
+      - 127.0.0.1:9991:9991 # Admin
+      - 127.0.0.1:4100:4100 # Thrift
+      - 127.0.0.1:4180:4180 # HTTP
+    volumes:
+      - $PWD/config/namerd.yaml:/config.yaml
+    command: /config.yaml
+    # network_mode: host
+    # privileged: true
+    # networks:
+    #   proxy:
+
+  node:
+    image: alextanhongpin/echo
+    restart: always
+    environment:
+      - SERVICE_NAME=echo
+      - SERVICE_REGION=ap-southeast-1
+      - SERVICE_TAGS=traefik.enable=true,traefik.backend=echo,traefik.frontend.entryPoints=http,traefik.frontend.rule=Host:echo.consul.localhost,traefik.frontend.passHostHeader=true
+      # ,traefik.backend.circuitbreaker.expression='NetworkErrorRatio() > 0.5',traefik.backend.maxconn.amount=10,traefik.backend.maxconn.extractorfunc=client.ip
+    ports:
+      - 127.0.0.1::8080
+    # networks:
+    #   proxy:
+
+  
 
 # Services: mathsvc, thissvc, etc
 # Storage: mongo, postgres

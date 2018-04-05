@@ -12,11 +12,9 @@ watch = true
 
 [consulCatalog]
 endpoint = "consul:8500"
-# You have to manually add the tags to enable the service to be discovered
-exposedByDefault = false
+exposedByDefault = false # You have to manually add the tags to enable the service to be discovered
 domain = "consul.localhost"
-# All tags have to be prefixed with traefik, e.g. traefik.enable=true
-prefix = "traefik"
+prefix = "traefik" # All tags have to be prefixed with traefik, e.g. traefik.enable=true
 
 [tracing]
 	Backend = "jaeger"
@@ -25,8 +23,7 @@ prefix = "traefik"
 		SamplingServerURL = "http://tracing:5778/sampling"
 		SamplingType = "const"
 		SamplingParam = 1.0
-		# LocalAgentHostPort = "tracing:6832"
-		LocalAgentHostPort = "tracing:5775"
+		LocalAgentHostPort = "tracing:5775" # The example in traefik documentation doesn't work: LocalAgentHostPort = "tracing:6832"
 	
 [metrics]
 	[metrics.prometheus]

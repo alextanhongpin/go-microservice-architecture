@@ -1,0 +1,96 @@
+# linkerd config for linker-to-linker mode
+# routes from port 4140 on source node to 4141 on destination node
+
+admin:
+  ip: 0.0.0.0
+  port: 9990
+
+# telemetry:
+# - kind: io.l5d.prometheus
+
+# namers:
+# - kind: io.l5d.consul
+#   host: consul
+#   port: 8500
+#   includeTag: false
+#   useHealthCheck: true
+#   healthStatuses:
+#     - "passing"
+#     - "warning"
+#   setHost: true
+#   consistencyMode: stale
+
+routers:
+- protocol: http
+  label: ingress
+  # dtab: |
+  #   /svc => /#/io.l5d.consul_ingress/dc1;
+  # service:
+  #   kind: io.l5d.static
+  #   configs:
+  #   - prefix: /svc
+  #     retries:
+  #       budget:
+  #         minRetriesPerSec: 5
+  #         percentCanRetry: 0.5
+  #         ttlSecs: 15
+  #       backoff:
+  #         kind: jittered
+  #         minMs: 10
+  #         maxMs: 10000
+  servers:
+  - port: 4140
+    ip: 0.0.0.0
+    maxConcurrentRequests: 10
+  identifier:
+    kind: io.l5d.header.token
+  interpreter:
+    kind: io.l5d.namerd.http
+    experimental: true
+    dst: /$/inet/namerd/4180
+    namespace: consul_ingress
+    retry:
+      baseSeconds: 5
+      maxSeconds: 600
+    transformers:
+    - kind: io.l5d.port
+      port: 4141
+  # originator: true
+
+- protocol: http
+  label: outgress
+  # dtab: |
+  #   /svc => /#/io.l5d.consul_egress/dc1;
+  # service:
+  #   kind: io.l5d.static
+  #   configs:
+  #   - prefix: /svc
+  #     retries:
+  #       budget:
+  #         minRetriesPerSec: 5
+  #         percentCanRetry: 0.5
+  #         ttlSecs: 15
+  #       backoff:
+  #         kind: jittered
+  #         minMs: 10
+  #         maxMs: 10000
+  servers:
+  - port: 4141
+    ip: 0.0.0.0
+    maxConcurrentRequests: 10
+  identifier:
+    kind: io.l5d.header.token
+  interpreter:
+    kind: io.l5d.namerd.http
+    experimental: true
+    dst: /$/inet/namerd/4180
+    namespace: consul_egress
+    retry:
+      baseSeconds: 5
+      maxSeconds: 600
+    transformers:
+    # filter instances to only include those on this host
+    # - kind: io.l5d.localhost
+    - kind: io.l5d.specificHost
+      host: docker.for.mac.localhost
+
