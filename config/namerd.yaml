@@ -39,7 +39,7 @@ namers:
   # healthStatuses:
   #   - "passing"
   #   - "warning"
-  setHost: false
+  setHost: true
   consistencyMode: stale
   failFast: true
   preferServiceAddress: true

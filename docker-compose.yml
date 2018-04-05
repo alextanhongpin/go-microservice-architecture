@@ -5,7 +5,7 @@ services:
     restart: always
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock
-    command: -internal=true -deregister=always -ip=127.0.0.1 -cleanup -tags=registrator consul:8500
+    command: -internal=true -deregister=always -ip=docker.for.mac.localhost -cleanup -tags=registrator consul:8500
     network_mode: host
 
   consul:
@@ -77,8 +77,8 @@ services:
     command: /config.yaml
     # networks:
     #   proxy:
-    depends_on:
-      - namerd
+    # depends_on:
+    #   - namerd
     # network_mode: host
     # privileged: true
     # Health check: "path": "/admin/ping"
