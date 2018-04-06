@@ -14,15 +14,15 @@ TODO: Cleanup the diagram, and add more services
 The following architecture aims to solve several problems
 
 - [x] Load balancing between services
-- [ ] Service discovery and registration
-- [ ] Resiliency patterns such as circuit breaker, timeout, retries
-- [ ] Centralized logging
-- [ ] Health checks for services
-- [ ] Telemetry metrics collection and dashboards
-- [ ] blue/green deployment (traffic splitting), rolling upgrades
+- [x] Service discovery and registration
+- [x] Resiliency patterns such as circuit breaker, timeout, retries
+- [x] Centralized logging
+- [x] Health checks for services
+- [x] Telemetry metrics collection and dashboards
+- [x] blue/green deployment (traffic splitting), rolling upgrades
 - [ ] gRPC load balancing and discovery
-- [ ] open tracing capabilities
-- [ ] demonstrates the delegation of several capabilities to the infra, rather than repeating it at the code levels
+- [x] open tracing capabilities
+- [x] demonstrates the delegation of several capabilities to the infra, rather than repeating it at the code levels
 
 ## Start
 
