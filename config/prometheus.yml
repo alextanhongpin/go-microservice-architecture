@@ -32,6 +32,18 @@ scrape_configs:
   #   static_configs:
   #   - targets: ['docker.for.mac.localhost:1234']
 
+  # Consul Telemetry
+  - job_name: 'consul'
+
     consul_sd_configs:
       - server: consul:8500
         # services: []
+
+  # Linkerd Telemetry
+  - job_name: 'linkerd'
+
+    metrics_path: /admin/metrics/prometheus
+
+    static_configs:
+    - targets:
+      - 'linkerd:9990'

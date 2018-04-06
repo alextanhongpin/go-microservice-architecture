@@ -8,6 +8,22 @@ Sample architecture with Go, showing how the different pieces are tied together.
 
 TODO: Cleanup the diagram, and add more services
 
+
+## Abstract
+
+The following architecture aims to solve several problems
+
+- [x] Load balancing between services
+- [ ] Service discovery and registration
+- [ ] Resiliency patterns such as circuit breaker, timeout, retries
+- [ ] Centralized logging
+- [ ] Health checks for services
+- [ ] Telemetry metrics collection and dashboards
+- [ ] blue/green deployment (traffic splitting), rolling upgrades
+- [ ] gRPC load balancing and discovery
+- [ ] open tracing capabilities
+- [ ] demonstrates the delegation of several capabilities to the infra, rather than repeating it at the code levels
+
 ## Start
 
 ```bash
@@ -23,6 +39,9 @@ $ docker-compose up -d
 - grafana: [localhost:3000](http://localhost:3000)
 - linkerd: [localhost:9990](http://localhost:9990)
 - namerd: [localhost:9991](http://localhost:9991)
+- elasticsearch: [localhost:9200](http://localhost:9200)
+- kibana: [localhost:9200](http://localhost:5601)
+- dejavu: [localhost:1358](http://localhost:1358)
 
 ## Call the Echo Service
 
@@ -157,6 +176,13 @@ If the new api is down, linkerd/namerd will hold a cache of the previous running
 
 # Kill new api
 $ docker-compose stop api2-->
+
+## Fluentd logging
+
+```bash
+# Find the httpd endpoint and trigger it
+$ repeat 10 curl http://localhost:32857/
+```
 
 ## TODO
 

@@ -9,8 +9,13 @@ usage:
   orgId: alextanhongpin
   enabled: false
 
-# telemetry:
-# - kind: io.l5d.prometheus
+telemetry:
+- kind: io.l5d.prometheus
+- kind: io.l5d.zipkin
+  host: zipkin
+  port: 9411
+  # port: 9410
+  sampleRate: 0.02
 
 routers:
 - label: ingress
