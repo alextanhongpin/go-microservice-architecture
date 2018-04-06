@@ -1,64 +1,147 @@
 digraph G {
+	compound = true
+	node [shape = box]
+	// Load Balancers
+	traefik [label = Traefik]
+	linkerd [label = Linkerd]
 
+	// Service Discovery
+	disco [label = Registrator]
+	consul [label = Consul]
+	namerd [label = Namerd]
 
-  subgraph cluster_0 {
-		label = Service
-		echo
+	// Services
+	svc1 [label = echo]
+	svc2 [label = httpd]
+	svc3 [label = blue]
+	svc4 [label = green]
+	svc5 [label = "gRPC\nClient"]
+	svc6 [label = "gRPC\nServer"]
+
+	u1 [label = User]
+	dev1 [label = Developer]
+	dev2 [label = Developer]
+
+	// Open Tracing
+	zipkin [label = Zipkin]
+	jaeger [label = Jaeger]
+
+	// Telemetry
+	prom [label = Prometheus]
+
+	// Storage
+	// psql [label = Postgres]
+
+	// Cache
+	// redis [label = Redis]
+
+	// Logging
+	fluentd [label = Fluentd]
+
+	// Elasticsearch
+	es [label = Elasticsearch]
+
+	// Visualization
+	grafana [label = Grafana]
+	//metabase [label = Metabase]
+	kibana [label = Kibana]
+	dejavu [label = Dejavu]
+
+	subgraph cluster_0 {
+		label = "HTTP Service"
+		style = filled
+		fillcolor = lavenderblush
+		svc1 svc2 svc3 svc4
 	}
 
-  subgraph cluster_1 {
-		label = Storage
-		"N/A Postgres"
+	subgraph cluster_1 {
+		label = "Load Balancer"
+		style = filled
+		fillcolor = lavender
+		linkerd traefik
 	}
 
-  subgraph cluster_2 {
-		label = Telemetry
-		Jaeger Prometheus
+	subgraph cluster_2 {
+		label = OpenTracing
+		style = filled
+		fillcolor = mintcream
+		zipkin jaeger
 	}
 
-  subgraph cluster_3 {
-		label = Cache
-		"N/A Redis"
+	subgraph cluster_3 {
+		label = "Secondary Storage"
+		//psql 
+		style = filled
+		fillcolor = lightcyan
+		es
 	}
 
-  subgraph cluster_4 {
+	//subgraph cluster_4 {
+	//	label = Cache
+	//	redis
+	//}
+
+	subgraph cluster_5 {
 		label = Logging
-		"N/A Fluentd"
-	}
-
-  subgraph cluster_5 {
-		label = Visualization
-		"N/A Kibana" "N/A Metabase" Grafana
+		style = filled
+		fillcolor = honeydew
+		fluentd
 	}
 
 	subgraph cluster_6 {
-		label = "Key/Value Store"
-		Consul
+		label = Visualization
+		// metabase
+		style = filled
+		fillcolor = lightyellow
+		grafana kibana dejavu
 	}
 
 	subgraph cluster_7 {
 		label = "Service Discovery"
-		Registrator Consul
+		style = filled
+		fillcolor = whitesmoke
+		disco consul namerd
 	}
 
 	subgraph cluster_8 {
-		label = Security
-		Vault
+		label = Telemetry
+		style = filled
+		fillcolor = oldlace
+		prom
 	}
 
 	subgraph cluster_9 {
-		label = "Load Balancer"
-		traefik
+		label = "gRPC Service"
+		style = filled
+		fillcolor = navajowhite
+		svc5 svc6
 	}
 
+	traefik -> {svc1;svc2;} [ltail = cluster_1, lhead = cluster_0, label = "Distribute\nLoad"]
+	traefik -> {jaeger;zipkin} [ltail = cluster_1,lhead = cluster_2]
+	disco -> consul [label = "Register\nServices"]
+	consul -> {linkerd; traefik} [ltail = cluster_7, lhead = cluster_1]
+	{linkerd; traefik} -> prom [ltail = cluster_1, lhead = cluster_8]
+	prom -> grafana
+	namerd -> linkerd [label = Discovery, style = dotted]
+	namerd -> consul [label = Storage, style = dotted]
+	linkerd -> {svc3; zipkin}
+	svc3 -> svc4 [label = Deploy style = dotted]
+	{svc1; svc2} -> fluentd [ltail = cluster_0, lhead = cluster_5]
+	fluentd -> es [ltail = cluster_5, lhead = cluster_3, label = "Index\nDaily To"]
+	es -> {kibana; dejavu} [ltail = cluster_3, lhead = cluster_6]
 
-	traefik -> echo -> "N/A Postgres" -> echo
+	// Load-balancing gRPC
+	svc5 -> {linkerd; traefik} [ltail = cluster_9, lhead = cluster_1]
+	{linkerd; traefik} -> svc6 [ltail = cluster_1, lhead = cluster_9]
 
-       echo -> Registrator -> Consul
-       Registrator -> traefik -> {Jaeger; Prometheus}
-       echo -> "N/A Fluentd"
-       echo -> "N/A Redis" -> echo
-       Consul -> {echo; traefik}
-       Prometheus -> Grafana
-       echo -> Vault
+	// Developers accessing monitoring tools
+	dev1 -> kibana [lhead = cluster_6, label = Monitor]	
+	dev2 -> jaeger [lhead = cluster_2, label = Trace]
+
+	// User making calls to the load-balancers
+	u1 -> {linkerd;traefik} [lhead = cluster_1]
+
+	// Discovery
+	svc1 -> disco [ltail = cluster_0, lhead = cluster_7, style = dotted, label = Register]
 }
