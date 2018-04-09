@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.11.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: zipkin
+  name: zipkin
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: zipkin
+    spec:
+      containers:
+      - env:
+        - name: STORAGE_PORT_9200_TCP_ADDR
+          value: elasticsearch
+        - name: STORAGE_TYPE
+          value: elasticsearch
+        image: openzipkin/zipkin:2.7.0
+        name: zipkin
+        ports:
+        - containerPort: 9411
+        resources: {}
+      restartPolicy: Always
+status: {}

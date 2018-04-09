@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.11.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namerd
+  name: namerd
+spec:
+  ports:
+  - name: "9991"
+    port: 9991
+    targetPort: 9991
+  - name: "4100"
+    port: 4100
+    targetPort: 4100
+  - name: "4180"
+    port: 4180
+    targetPort: 4180
+  selector:
+    io.kompose.service: namerd
+status:
+  loadBalancer: {}

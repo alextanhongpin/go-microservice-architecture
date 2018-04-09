@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.11.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: web
+  name: web
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: web
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: httpd
+        - name: SERVICE_REGION
+          value: ap-southeast-1
+        - name: SERVICE_TAGS
+          value: traefik.enable=true,traefik.backend=httpd,traefik.frontend.entryPoints=http,traefik.frontend.rule=Host:httpd.consul.localhost
+        image: httpd
+        name: web
+        ports:
+        - containerPort: 80
+        resources: {}
+      restartPolicy: Always
+status: {}

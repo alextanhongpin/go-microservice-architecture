@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.11.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: dejavu
+  name: dejavu
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: dejavu
+    spec:
+      containers:
+      - image: appbaseio/dejavu:latest
+        name: dejavu
+        ports:
+        - containerPort: 1358
+        resources: {}
+      restartPolicy: Always
+status: {}

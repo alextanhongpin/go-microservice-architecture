@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.11.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: namerd
+  name: namerd
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: namerd
+    spec:
+      containers:
+      - args:
+        - /config.yaml
+        env:
+        - name: SERVICE_IGNORE
+          value: "true"
+        image: buoyantio/namerd:1.3.6
+        name: namerd
+        ports:
+        - containerPort: 9991
+        - containerPort: 4100
+        - containerPort: 4180
+        resources: {}
+        volumeMounts:
+        - mountPath: /config.yaml
+          name: namerd-claim0
+      restartPolicy: Always
+      volumes:
+      - name: namerd-claim0
+        persistentVolumeClaim:
+          claimName: namerd-claim0
+status: {}

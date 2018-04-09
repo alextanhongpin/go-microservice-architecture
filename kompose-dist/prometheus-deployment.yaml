@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.11.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: prometheus
+  name: prometheus
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: prometheus
+    spec:
+      containers:
+      - image: prom/prometheus:v2.2.1
+        name: prometheus
+        ports:
+        - containerPort: 9090
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/prometheus/prometheus.yml
+          name: prometheus-claim0
+      restartPolicy: Always
+      volumes:
+      - name: prometheus-claim0
+        persistentVolumeClaim:
+          claimName: prometheus-claim0
+status: {}

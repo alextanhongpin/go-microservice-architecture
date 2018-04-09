@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.11.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: green
+  name: green
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: green
+    spec:
+      containers:
+      - env:
+        - name: SERVICE_NAME
+          value: green
+        - name: SERVICE_REGION
+          value: ap-southeast-1
+        - name: SERVICE_TAGS
+          value: green
+        - name: TEXT
+          value: green
+        image: alextanhongpin/echo:0.0.3
+        name: green
+        ports:
+        - containerPort: 8080
+        resources: {}
+      restartPolicy: Always
+status: {}

@@ -1,0 +1,39 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.11.0 ()
+  creationTimestamp: null
+  labels:
+    io.kompose.service: registrator
+  name: registrator
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: registrator
+    spec:
+      containers:
+      - args:
+        - -ip=docker.for.mac.localhost
+        - -deregister=always
+        - -cleanup
+        - -tags=registrator
+        - consul://consul:8500
+        image: gliderlabs/registrator:vendor
+        name: registrator
+        resources: {}
+        volumeMounts:
+        - mountPath: /tmp/docker.sock
+          name: registrator-claim0
+      restartPolicy: Always
+      volumes:
+      - name: registrator-claim0
+        persistentVolumeClaim:
+          claimName: registrator-claim0
+status: {}
