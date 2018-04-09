@@ -117,4 +117,13 @@ routers:
   #   kind: ewma
   #   maxEffort: 10
   #   decayTimeMs: 15000
-
+- protocol: h2
+  interpreter:
+    kind: io.l5d.namerd
+    dst: /$/inet/namerd/4100
+  servers:
+  - port: 4142
+    ip: 0.0.0.0
+  dstPrefix: /grpc
+  identifier:
+    kind: io.l5d.header.path

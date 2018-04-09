@@ -2,13 +2,17 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	pb "github.com/alextanhongpin/go-microservice-architecture/route"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
 type grpcClient struct {
@@ -75,7 +79,7 @@ func (grpc grpcClient) RecordRoute() {
 	log.Printf("Got reply: %v", reply)
 }
 
-func (grpc grpcClient) RouteChat() {
+func (grpc grpcClient) RouteChat(ctx context.Context) {
 	notes := []*pb.RouteNote{
 		&pb.RouteNote{
 			Location: &pb.Point{
@@ -92,7 +96,7 @@ func (grpc grpcClient) RouteChat() {
 			Message: "hello world 2",
 		},
 	}
-	stream, err := grpc.client.RouteChat(context.Background())
+	stream, err := grpc.client.RouteChat(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -102,10 +106,12 @@ func (grpc grpcClient) RouteChat() {
 			in, err := stream.Recv()
 			if err == io.EOF {
 				close(waitc)
+				log.Fatal(err)
 				return
 			}
 			if err != nil {
 				log.Fatalf("Failed to receive note:%v", err)
+				return
 			}
 			log.Printf("Got message %v", in)
 		}
@@ -121,11 +127,16 @@ func (grpc grpcClient) RouteChat() {
 }
 
 func main() {
+	svcURL := os.Getenv("SVC_URL")
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = ":50051"
+		port = ":1234"
 	}
-	conn, err := grpc.Dial(port, grpc.WithInsecure())
+
+	if svcURL == "" {
+		svcURL = ":50051"
+	}
+	conn, err := grpc.Dial(svcURL, grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -140,5 +151,31 @@ func main() {
 	// client.GetFeature()
 	// client.ListFeatures()
 	// client.RecordRoute()
-	client.RouteChat()
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		ctx := getContext(r)
+		log.Printf("%+v\n", r.Header)
+		client.RouteChat(ctx)
+		fmt.Fprintf(w, `{"output": "%v"}`, "ok")
+	})
+
+	log.Printf("listening to port *%s. press ctrl + c to cancel.\n", port)
+	log.Fatal(http.ListenAndServe(port, mux))
+}
+
+func getContext(req *http.Request) context.Context {
+	headers := make(map[string]string)
+	for k, values := range req.Header {
+		prefixed := func(s string) bool { return strings.HasPrefix(k, s) }
+		if prefixed("L5d-") || prefixed("Dtab-") || prefixed("X-Dtab-") {
+			if len(values) > 0 {
+				headers[k] = values[0]
+			}
+		}
+	}
+	log.Println("headers", headers)
+	md := metadata.New(headers)
+	ctx := metadata.NewIncomingContext(context.Background(), md)
+	return ctx
 }

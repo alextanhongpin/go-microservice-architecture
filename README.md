@@ -209,3 +209,7 @@ $ repeat 10 curl http://localhost:32857/
     command: -internal=true -deregister=always -ip=docker.for.mac.localhost -cleanup -tags=registrator consul:8500
     network_mode: host
 ```
+
+## Call upgrade Http2
+
+curl -svH "Host: proto.RouteGuide" -o/dev/null --http2 localhost:1234

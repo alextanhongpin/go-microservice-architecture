@@ -77,3 +77,23 @@ build-client:
 	--build-arg VCS_REF="${VCS_REF}" \
 	--build-arg NAME="${NAME}" \
 	--build-arg VENDOR="${VENDOR}" .
+
+build-server-local:
+	cd server && GOOS=linux GOARCH=arm CGO_ENABLED=0 go build -o app main.go
+	cd server && docker build -f Dockerfile.dev -t alextanhongpin/grpc-server-noauth . && rm app
+
+build-client-local:
+	cd client && GOOS=linux GOARCH=arm CGO_ENABLED=0 go build -o app main.go
+	cd client && docker build -f Dockerfile.dev -t alextanhongpin/grpc-client-noauth . && rm app
+
+# For testing the gRPC Server
+run-server:
+	docker run --rm -d -p 50051:50051 -e PORT=0.0.0.0:50051 alextanhongpin/grpc-server-noauth
+
+# For testing the gRPC
+run-client:
+	@docker run --rm -e PORT=docker.for.mac.localhost:4142 alextanhongpin/grpc-client-noauth
+	# docker run --rm -e PORT=docker.for.mac.localhost:50051 alextanhongpin/grpc-client-noauth
+
+h2:
+	curl -svH "Host: proto.RouteGuide" -o/dev/null --http2 localhost:1234

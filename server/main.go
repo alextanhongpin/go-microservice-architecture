@@ -112,6 +112,6 @@ func main() {
 		},
 	}
 	pb.RegisterRouteGuideServer(grpcServer, &server)
-	log.Printf("listening to server at port *:%s\n", port)
+	log.Printf("listening to server at port *%s\n", port)
 	grpcServer.Serve(lis)
 }

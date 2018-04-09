@@ -1,0 +1,9 @@
+FROM alpine:latest  
+
+MAINTAINER Alex Hong Pin Tan <alextan220990@gmail.com>
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+COPY app .
+CMD ["./app"]

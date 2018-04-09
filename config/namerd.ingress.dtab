@@ -1,1 +1,5 @@
-/svc=>/#/io.l5d.consul_ingress/dc1;
+# /svc=>/#/io.l5d.consul_ingress/dc1;
+/host/routeguide.RouteGuide=>/$/inet/grpcserver/50051;
+/host/web=>/$/inet/grpcclient/1234;
+/grpc=>/host;
+/svc=>/host/web;

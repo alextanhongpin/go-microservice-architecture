@@ -68,6 +68,7 @@ services:
       - 127.0.0.1:9990:9990 # Admin
       - 127.0.0.1:4140:4140 # Ingress/Outgoing
       - 127.0.0.1:4141:4141 # Outgress/Incoming
+      - 127.0.0.1:4142:4142 # gRPC
     volumes:
       - $PWD/config/linkerd.yaml:/config.yaml
     command: /config.yaml
@@ -200,23 +201,44 @@ services:
       proxy:
       log:
   
-  zipkin:
-    image: openzipkin/zipkin:2.7.0
+  # zipkin:
+  #   image: openzipkin/zipkin:2.7.0
+  #   ports:
+  #     # Uncomment if you set SCRIBE_ENABLED=true
+  #     # - 127.0.0.1:9410:9410
+  #     # Port used for the Zipkin UI and HTTP Api
+  #     - 127.0.0.1:9411:9411
+  #   environment:
+  #     # Point the zipkin at the storage backend
+  #     - STORAGE_TYPE=elasticsearch
+  #     - STORAGE_PORT_9200_TCP_ADDR=elasticsearch
+  #     # Uncomment to enable scribe
+  #     # - SCRIBE_ENABLED=true
+  #     # Uncomment to enable self-tracing
+  #     # - SELF_TRACING_ENABLED=true
+  #     # Uncomment to enable debug logging
+  #     # - JAVA_OPTS=-Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
+
+  grpcserver:
+    # build:
+    #   context: ./server
+    #   dockerfile: Dockerfile.dev
+    image: alextanhongpin/grpc-server-noauth
     ports:
-      # Uncomment if you set SCRIBE_ENABLED=true
-      # - 127.0.0.1:9410:9410
-      # Port used for the Zipkin UI and HTTP Api
-      - 127.0.0.1:9411:9411
+      - 127.0.0.1:50051:50051
     environment:
-      # Point the zipkin at the storage backend
-      - STORAGE_TYPE=elasticsearch
-      - STORAGE_PORT_9200_TCP_ADDR=elasticsearch
-      # Uncomment to enable scribe
-      # - SCRIBE_ENABLED=true
-      # Uncomment to enable self-tracing
-      # - SELF_TRACING_ENABLED=true
-      # Uncomment to enable debug logging
-      # - JAVA_OPTS=-Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
+      - PORT=0.0.0.0:50051
+
+  grpcclient:
+    image: alextanhongpin/grpc-client-noauth
+    # build:
+    #   context: ./client
+    #   dockerfile: Dockerfile.dev
+    environment:
+      - SVC_URL=linkerd:4142
+      - PORT=0.0.0.0:1234
+    ports:
+      - 127.0.0.1:1234:1234
 
 networks:
   proxy:
