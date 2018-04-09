@@ -1,6 +1,6 @@
 FROM golang:1.9 as builder
 
-WORKDIR /go/src/github.com/alextanhongpin/go-microservice-architecture/client
+WORKDIR /go/src/github.com/alextanhongpin/go-microservice-architecture
 
 COPY main.go .
 
@@ -13,7 +13,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /root/
-COPY --from=builder /go/src/github.com/alextanhongpin/go-microservice-architecture/client/app .
+COPY --from=builder /go/src/github.com/alextanhongpin/go-microservice-architecture/app .
 
 # Metadata params
 ARG VERSION
