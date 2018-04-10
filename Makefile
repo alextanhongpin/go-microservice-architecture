@@ -116,3 +116,36 @@ describe-nginx:
 
 restart-linkerd:
 	docker-compose restart linkerd
+
+cert-linkerd:
+	openssl req -nodes -x509 -newkey rsa:2048 -keyout cert/linkerd_key.pem -out cert/linkerd_cert.pem -days 365 -subj '/CN=linkerd'
+
+cert-nginx:
+	openssl req -nodes -x509 -newkey rsa:2048 -keyout cert/nginx_key.pem -out cert/nginx_cert.pem -days 365 -subj '/CN=nginx'
+
+certstrap:
+	certstrap init --common-name "CertAuth"
+	certstrap request-cert --common-name linkerd
+	certstrap sign linkerd --CA CertAuth
+
+
+# SERVICE_NAME := linkerd
+
+# certold:
+# 	mkdir -p cert/{newcerts,private}
+# 	echo 00 > cert/serial
+# 	touch cert/index.txt
+# 	openssl req -x509 -nodes -config openssl.cnf -newkey rsa:2048 \
+#   -subj '/C=US/CN=My CA' -keyout cert/private/cakey.pem \
+#   -out cert/cacert.pem
+
+# 	# generate a certificate signing request with the common name "$SERVICE_NAME"
+# 	openssl req -new -nodes -config openssl.cnf -subj "/C=US/CN=${SERVICE_NAME}" \
+#   -keyout cert/private/${SERVICE_NAME}_key.pem \
+#   -out cert/${SERVICE_NAME}_req.pem
+ 
+# 	# have the CA sign the certificate
+# 	openssl ca -batch -config openssl.cnf -keyfile cert/private/cakey.pem \
+#   -cert cert/cacert.pem \
+#   -out cert/${SERVICE_NAME}_cert.pem \
+#   -infiles cert/${SERVICE_NAME}_req.pem

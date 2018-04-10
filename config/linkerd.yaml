@@ -118,7 +118,7 @@ routers:
   #   maxEffort: 10
   #   decayTimeMs: 15000
 - protocol: h2
-  label: grpc-outgoing
+  label: grpc
   dtab: |
     /host/web              => /$/inet/grpcclient;
     /host/echo.EchoService => /$/inet/grpcserver/50051;
@@ -131,18 +131,18 @@ routers:
   - port: 4142
     ip: 0.0.0.0
     tls:
-      certPath: /run/secrets/frontend.cert
-      keyPath: /run/secrets/frontend.key
-      caCertPath: /run/secrets/backend.cert
+      # caCertPath: /run/secrets/linkerd.cacert
+      certPath: /run/secrets/linkerd.cert
+      keyPath: /run/secrets/linkerd.key
+      requireClientAuth: false
   dstPrefix: /grpc
   identifier:
     kind: io.l5d.header.path
-    segments: 1
+    segments: 2
   client:
-    kind: io.l5d.static
-    config:
-    - prefix: "/$/inet/{service}"
-      tls:
-        kind: io.l5d.boundPath
-        caCertPath: /run/secrets/backend.cert
-        commonName: "{service}"
+    tls:
+      # enabled: true
+      commonName: linkerd
+      clientAuth:
+        certPath: /run/secrets/linkerd.cert
+        keyPath: /run/secrets/linkerd.key
