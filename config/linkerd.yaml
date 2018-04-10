@@ -118,12 +118,31 @@ routers:
   #   maxEffort: 10
   #   decayTimeMs: 15000
 - protocol: h2
-  interpreter:
-    kind: io.l5d.namerd
-    dst: /$/inet/namerd/4100
+  label: grpc-outgoing
+  dtab: |
+    /host/web              => /$/inet/grpcclient;
+    /host/echo.EchoService => /$/inet/grpcserver/50051;
+    /grpc                  => /host;
+    /svc                   => /host/web;
+  # interpreter:
+  #   kind: io.l5d.namerd
+  #   dst: /$/inet/namerd/4100
   servers:
   - port: 4142
     ip: 0.0.0.0
+    tls:
+      certPath: /run/secrets/frontend.cert
+      keyPath: /run/secrets/frontend.key
+      caCertPath: /run/secrets/backend.cert
   dstPrefix: /grpc
   identifier:
     kind: io.l5d.header.path
+    segments: 1
+  client:
+    kind: io.l5d.static
+    config:
+    - prefix: "/$/inet/{service}"
+      tls:
+        kind: io.l5d.boundPath
+        caCertPath: /run/secrets/backend.cert
+        commonName: "{service}"

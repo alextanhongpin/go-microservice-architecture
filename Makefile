@@ -97,3 +97,22 @@ run-client:
 
 h2:
 	curl -svH "Host: proto.RouteGuide" -o/dev/null --http2 localhost:1234
+
+describe-namerd:
+	docker logs $(shell docker ps --filter name=namerd -q)
+
+describe-linkerd:
+	docker logs $(shell docker ps -a --filter name=linkerd -q)
+
+describe-server:
+	docker logs $(shell docker ps --filter name=grpcserver -q)
+
+describe-client:
+	docker logs $(shell docker ps -a --filter name=grpcclient -q)
+
+describe-nginx:
+	docker logs $(shell docker ps -a --filter name=nginx -q)
+
+
+restart-linkerd:
+	docker-compose restart linkerd

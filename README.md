@@ -213,3 +213,16 @@ $ repeat 10 curl http://localhost:32857/
 ## Call upgrade Http2
 
 curl -svH "Host: proto.RouteGuide" -o/dev/null --http2 localhost:1234
+
+## gRPC Load Balancing with Nginx
+
+
+```bash
+$ docker-compose logs nginx
+172.18.0.4 - - [10/Apr/2018:07:06:05 +0000] "POST /echo.EchoService/Echo HTTP/2.0" 200 36 "-" "grpc-go/1.12.0-dev"
+```
+
+```bash
+$ docker-compose logs grpcclient
+2018/04/10 07:06:05 got res: &echo.EchoResponse{Text:"hello world from c5ce7e54798c"}
+```
