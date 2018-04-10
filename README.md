@@ -234,8 +234,16 @@ openssl genrsa -out server.key 2048
 openssl req -new -key server.key -out server.csr
 openssl x509 -req -in server.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out server.crt -days 730-->
 
-https://jamielinux.com/docs/openssl-certificate-authority/
+<!-- https://jamielinux.com/docs/openssl-certificate-authority/
 
 ca-chain.cert.pem
 www.example.com.key.pem
-www.example.com.cert.pem
+www.example.com.cert.pem -->
+
+https://github.com/linkerd/linkerd-examples/tree/master/docker/helloworld
+```
+go get -u github.com/linkerd/linkerd-examples/docker/helloworld/helloworld-client
+
+$ helloworld-client 127.0.0.1:4142
+Hello world!!
+```

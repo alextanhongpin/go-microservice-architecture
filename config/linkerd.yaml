@@ -121,22 +121,27 @@ routers:
 - protocol: h2
   label: h2-ingress
   dtab: |
-    /srv/EchoService => /$/inet/grpcserver/50051;
+    /srv/EchoService => /$/inet/grpcserver2/50052;
+    /srv/RouteGuide => /$/inet/grpcserver/50051;
+    /srv/Hello => /$/inet/hello/7777;
+    /srv/World => /$/inet/world/7778;
+    # /svc/host => /$/inet/grpcclient/1234;
+    # /svc => /svc/host;
     /grpc => /$/io.buoyant.http.domainToPathPfx/srv; # /grpc/echo.EchoService -> /srv/EchoService/echo
   servers:
   - port: 4142
     ip: 0.0.0.0
-    tls:
-      # caCertPath: /run/secrets/linkerd.cacert
-      certPath: /run/secrets/linkerd.cert
-      keyPath: /run/secrets/linkerd.key
-      # requireClientAuth: true
+    # tls:
+    #   # caCertPath: /run/secrets/linkerd.cacert
+    #   certPath: /run/secrets/linkerd.cert
+    #   keyPath: /run/secrets/linkerd.key
+    #   # requireClientAuth: true
   dstPrefix: /grpc
   identifier:
     kind: io.l5d.header.path
-    segments: 1
-  client:
-    forwardClientCert: true
+    segments: 2
+  # client:
+  #   forwardClientCert: true
     # tls:
     #   commonName: linkerd
     #   clientAuth:
