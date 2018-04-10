@@ -63,7 +63,7 @@ services:
   #     - SERVICE_IGNORE=true
 
   linkerd:
-    image: buoyantio/linkerd:1.3.7
+    image: buoyantio/linkerd:1.3.6
     ports:
       - 127.0.0.1:9990:9990 # Admin
       - 127.0.0.1:4140:4140 # Ingress/Outgoing
@@ -83,7 +83,7 @@ services:
     # Health check: "path": "/admin/ping"
 
   namerd:
-    image: buoyantio/namerd:1.3.7
+    image: buoyantio/namerd:1.3.6
     ports:
       - 127.0.0.1:9991:9991 # Admin
       - 127.0.0.1:4100:4100 # Thrift
@@ -224,25 +224,23 @@ services:
   #     # - JAVA_OPTS=-Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
 
   # grpcserver:
-  #   # build:
-  #   #   context: ./server
-  #   #   dockerfile: Dockerfile.dev
   #   image: alextanhongpin/grpc-server-noauth
   #   ports:
   #     - 127.0.0.1:50051:50051
   #   environment:
   #     - PORT=0.0.0.0:50051
+  #   networks:
+  #     discovery:
 
   # grpcclient:
   #   image: alextanhongpin/grpc-client-noauth
-  #   # build:
-  #   #   context: ./client
-  #   #   dockerfile: Dockerfile.dev
   #   environment:
   #     - SVC_URL=linkerd:4142
   #     - PORT=0.0.0.0:1234
   #   ports:
   #     - 127.0.0.1:1234:1234
+  #   networks:
+  #     discovery:
 
   grpcserver:
     image: alextanhongpin/grpc-server:latest
@@ -254,15 +252,15 @@ services:
       # - SSL_KEY=/run/secrets/backend.key
       # - SSL_CERT=/run/secrets/nginx.cert
       # - SSL_KEY=/run/secrets/nginx.key
-      - SSL_CERT=/run/secrets/linkerd.frontend.cert
-      - SSL_KEY=/run/secrets/linkerd.frontend.key
+      - SSL_CERT=/run/secrets/linkerd.cert
+      - SSL_KEY=/run/secrets/linkerd.key
     secrets:
       # - backend.cert
       # - backend.key
       # - nginx.cert
       # - nginx.key
-      - linkerd.frontend.cert
-      - linkerd.frontend.key
+      - linkerd.cert
+      - linkerd.key
     networks:
       discovery:
 
@@ -271,14 +269,14 @@ services:
     environment:
       # - SSL_CERT=/run/secrets/frontend.cert
       # - SSL_CERT=/run/secrets/nginx.cert
-      - SSL_CERT=/run/secrets/linkerd.frontend.cert
+      - SSL_CERT=/run/secrets/linkerd.cert
       # - SRV_URL=nginx:1443
       # - SRV_URL=linkerd:4142
       - SRV_URL=linkerd:4142
     secrets:
       # - frontend.cert
       # - nginx.cert
-      - linkerd.frontend.cert
+      - linkerd.cert
     networks:
       discovery:
   
@@ -301,25 +299,28 @@ networks:
 
 secrets:
   backend.cert: 
-    file: ./cert/backend.cert
+    file: cert/backend.cert
   backend.key: 
-    file: ./cert/backend.key
+    file: cert/backend.key
   frontend.cert: 
-    file: ./cert/frontend.cert
+    file: cert/frontend.cert
   frontend.key: 
-    file: ./cert/frontend.key
+    file: cert/frontend.key
   # openssl req -nodes -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost'
   nginx.cert: 
-    file: ./cert/nginx_cert.pem
+    file: cert/nginx_cert.pem
   nginx.key: 
-    file: ./cert/nginx_key.pem
+    file: cert/nginx_key.pem
   linkerd.cacert:
-    file: ./cert_0/cacert.pem
+    file: ./out/CertAuth.crt
   linkerd.cert: 
-    file: ./cert_0/linkerd_req.pem
+    file: ./out/linkerd.crt
   linkerd.key: 
-    file: ./cert_0/linkerd_key.pem
-  linkerd.frontend.cert: 
-    file: ./cert/linkerd_cert.pem
-  linkerd.frontend.key: 
-    file: ./cert/linkerd_key.pem
+    file: ./out/linkerd.key2
+  # linkerd.cacert:
+  #   file: root/ca/intermediate/certs/ca-chain.cert.pem
+  #   # file: root/ca/certs/ca.cert.pem
+  # linkerd.cert: 
+  #   file: root/ca/intermediate/certs/linkerd.cert.pem
+  # linkerd.key: 
+  #   file: root/ca/intermediate/private/linkerd.key.pem

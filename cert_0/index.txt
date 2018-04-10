@@ -1,1 +1,0 @@
-V	21180317103214Z		00	unknown	/CN=linkerd/C=US

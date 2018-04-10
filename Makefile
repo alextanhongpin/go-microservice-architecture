@@ -96,7 +96,7 @@ run-client:
 	# docker run --rm -e PORT=docker.for.mac.localhost:50051 alextanhongpin/grpc-client-noauth
 
 h2:
-	curl -svH "Host: proto.RouteGuide" -o/dev/null --http2 localhost:1234
+	curl -svH "Host: routeguide.RouteGuide" -o/dev/null --http2 localhost:1234
 
 describe-namerd:
 	docker logs $(shell docker ps --filter name=namerd -q)
@@ -105,7 +105,7 @@ describe-linkerd:
 	docker logs $(shell docker ps -a --filter name=linkerd -q)
 
 describe-server:
-	docker logs $(shell docker ps --filter name=grpcserver -q)
+	docker logs $(shell docker ps -a --filter name=grpcserver -q)
 
 describe-client:
 	docker logs $(shell docker ps -a --filter name=grpcclient -q)
@@ -127,27 +127,12 @@ certstrap:
 	# certstrap init --common-name "CertAuth"
 	# certstrap request-cert --common-name linkerd
 	# certstrap sign linkerd --CA CertAuth
-	openssl rsa -in out/linkerd.key -text > out/linkerd.key.pem
-	openssl x509 -inform PEM -in out/linkerd.crt > out/linkerd.crt.pem
+	openssl pkcs8 -topk8 -nocrypt -in out/linkerd.key -out out/linkerd.key2
 
+	# openssl pkcs12 -export -in out/linkerd.crt -inkey out/linkerd.key2 \
+	# 	-out out/linkerd.p12 -chain -name linkerd \
+	# 	-CAfile out/CertAuth.crt -caname CertAuth
 
-SERVICE_NAME := linkerd
-
-certold:
-	mkdir -p cert_0/{newcerts,private}
-	echo 00 > cert_0/serial
-	touch cert_0/index.txt
-	openssl req -x509 -nodes -config openssl.cnf -newkey rsa:2048 \
-  -subj '/C=US/CN=My CA' -keyout cert_0/private/cakey.pem \
-  -out cert_0/cacert.pem
-
-	# generate a certificate signing request with the common name "$SERVICE_NAME"
-	openssl req -new -nodes -config openssl.cnf -subj "/C=US/CN=${SERVICE_NAME}" \
-  -keyout cert_0/private/${SERVICE_NAME}_key.pem \
-  -out cert_0/${SERVICE_NAME}_req.pem
- 
-	# have the CA sign the certificate
-	openssl ca -batch -config openssl.cnf -keyfile cert_0/private/cakey.pem \
-  -cert cert_0/cacert.pem \
-  -out cert_0/${SERVICE_NAME}_cert.pem \
-  -infiles cert_0/${SERVICE_NAME}_req.pem
+	# keytool -importkeystore -destkeystore out/linkerd.keystore \
+	# 	-srckeystore out/linkerd.p12 -srcstoretype PKCS12 -srcstorepass 123456 \
+	# 	-alias linkerd

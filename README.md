@@ -226,3 +226,16 @@ $ docker-compose logs nginx
 $ docker-compose logs grpcclient
 2018/04/10 07:06:05 got res: &echo.EchoResponse{Text:"hello world from c5ce7e54798c"}
 ```
+
+<!--
+openssl genrsa -out rootCA.key 2048
+openssl req -x509 -new -nodes -key rootCA.key -days 3650 -out rootCA.pem
+openssl genrsa -out server.key 2048
+openssl req -new -key server.key -out server.csr
+openssl x509 -req -in server.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out server.crt -days 730-->
+
+https://jamielinux.com/docs/openssl-certificate-authority/
+
+ca-chain.cert.pem
+www.example.com.key.pem
+www.example.com.cert.pem
