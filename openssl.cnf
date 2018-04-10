@@ -1,4 +1,4 @@
-dir = cert
+dir = cert_0
 
 [ ca ]
 default_ca = CA_default

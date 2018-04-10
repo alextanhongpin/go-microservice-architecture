@@ -124,28 +124,30 @@ cert-nginx:
 	openssl req -nodes -x509 -newkey rsa:2048 -keyout cert/nginx_key.pem -out cert/nginx_cert.pem -days 365 -subj '/CN=nginx'
 
 certstrap:
-	certstrap init --common-name "CertAuth"
-	certstrap request-cert --common-name linkerd
-	certstrap sign linkerd --CA CertAuth
+	# certstrap init --common-name "CertAuth"
+	# certstrap request-cert --common-name linkerd
+	# certstrap sign linkerd --CA CertAuth
+	openssl rsa -in out/linkerd.key -text > out/linkerd.key.pem
+	openssl x509 -inform PEM -in out/linkerd.crt > out/linkerd.crt.pem
 
 
-# SERVICE_NAME := linkerd
+SERVICE_NAME := linkerd
 
-# certold:
-# 	mkdir -p cert/{newcerts,private}
-# 	echo 00 > cert/serial
-# 	touch cert/index.txt
-# 	openssl req -x509 -nodes -config openssl.cnf -newkey rsa:2048 \
-#   -subj '/C=US/CN=My CA' -keyout cert/private/cakey.pem \
-#   -out cert/cacert.pem
+certold:
+	mkdir -p cert_0/{newcerts,private}
+	echo 00 > cert_0/serial
+	touch cert_0/index.txt
+	openssl req -x509 -nodes -config openssl.cnf -newkey rsa:2048 \
+  -subj '/C=US/CN=My CA' -keyout cert_0/private/cakey.pem \
+  -out cert_0/cacert.pem
 
-# 	# generate a certificate signing request with the common name "$SERVICE_NAME"
-# 	openssl req -new -nodes -config openssl.cnf -subj "/C=US/CN=${SERVICE_NAME}" \
-#   -keyout cert/private/${SERVICE_NAME}_key.pem \
-#   -out cert/${SERVICE_NAME}_req.pem
+	# generate a certificate signing request with the common name "$SERVICE_NAME"
+	openssl req -new -nodes -config openssl.cnf -subj "/C=US/CN=${SERVICE_NAME}" \
+  -keyout cert_0/private/${SERVICE_NAME}_key.pem \
+  -out cert_0/${SERVICE_NAME}_req.pem
  
-# 	# have the CA sign the certificate
-# 	openssl ca -batch -config openssl.cnf -keyfile cert/private/cakey.pem \
-#   -cert cert/cacert.pem \
-#   -out cert/${SERVICE_NAME}_cert.pem \
-#   -infiles cert/${SERVICE_NAME}_req.pem
+	# have the CA sign the certificate
+	openssl ca -batch -config openssl.cnf -keyfile cert_0/private/cakey.pem \
+  -cert cert_0/cacert.pem \
+  -out cert_0/${SERVICE_NAME}_cert.pem \
+  -infiles cert_0/${SERVICE_NAME}_req.pem

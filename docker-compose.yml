@@ -254,15 +254,15 @@ services:
       # - SSL_KEY=/run/secrets/backend.key
       # - SSL_CERT=/run/secrets/nginx.cert
       # - SSL_KEY=/run/secrets/nginx.key
-      - SSL_CERT=/run/secrets/linkerd.cert
-      - SSL_KEY=/run/secrets/linkerd.key
+      - SSL_CERT=/run/secrets/linkerd.frontend.cert
+      - SSL_KEY=/run/secrets/linkerd.frontend.key
     secrets:
       # - backend.cert
       # - backend.key
       # - nginx.cert
       # - nginx.key
-      - linkerd.cert
-      - linkerd.key
+      - linkerd.frontend.cert
+      - linkerd.frontend.key
     networks:
       discovery:
 
@@ -271,14 +271,14 @@ services:
     environment:
       # - SSL_CERT=/run/secrets/frontend.cert
       # - SSL_CERT=/run/secrets/nginx.cert
-      - SSL_CERT=/run/secrets/linkerd.cert
+      - SSL_CERT=/run/secrets/linkerd.frontend.cert
       # - SRV_URL=nginx:1443
       # - SRV_URL=linkerd:4142
       - SRV_URL=linkerd:4142
     secrets:
       # - frontend.cert
       # - nginx.cert
-      - linkerd.cert
+      - linkerd.frontend.cert
     networks:
       discovery:
   
@@ -314,8 +314,12 @@ secrets:
   nginx.key: 
     file: ./cert/nginx_key.pem
   linkerd.cacert:
-    file: ./out/CertAuth.crt
+    file: ./cert_0/cacert.pem
   linkerd.cert: 
-    file: ./cert/linkerd_cert.pem
+    file: ./cert_0/linkerd_req.pem
   linkerd.key: 
+    file: ./cert_0/linkerd_key.pem
+  linkerd.frontend.cert: 
+    file: ./cert/linkerd_cert.pem
+  linkerd.frontend.key: 
     file: ./cert/linkerd_key.pem

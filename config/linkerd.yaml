@@ -134,11 +134,11 @@ routers:
       # caCertPath: /run/secrets/linkerd.cacert
       certPath: /run/secrets/linkerd.cert
       keyPath: /run/secrets/linkerd.key
-      requireClientAuth: false
+      # requireClientAuth: false
   dstPrefix: /grpc
   identifier:
     kind: io.l5d.header.path
-    segments: 2
+    segments: 1
   client:
     tls:
       # enabled: true
