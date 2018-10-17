@@ -8,6 +8,14 @@ Sample architecture with Go, showing how the different pieces are tied together.
 
 TODO: Cleanup the diagram, and add more services
 
+## Requirements
+
+Non-functional requirements:
+
+- system should be highly resilient
+- system should be available
+- system should be scalable
+- system should be observable
 
 ## Abstract
 
@@ -15,14 +23,21 @@ The following architecture aims to solve several problems
 
 - [x] Load balancing between services
 - [x] Service discovery and registration
-- [x] Resiliency patterns such as circuit breaker, timeout, retries
+- [x] Resiliency patterns such as circuit breaker, timeout, retries, rate-limiting
 - [x] Centralized logging
 - [x] Health checks for services
 - [x] Telemetry metrics collection and dashboards
 - [x] blue/green deployment (traffic splitting), rolling upgrades
-- [ ] gRPC load balancing and discovery
+- [x] gRPC load balancing and discovery
 - [x] open tracing capabilities
 - [x] demonstrates the delegation of several capabilities to the infra, rather than repeating it at the code levels
+- [ ] add block ip functionality
+- [ ] add security pipeline 
+- [ ] add log analysis to process incoming logs
+- [ ] add context logging (request id) that propagates through the system
+- [ ] enhance/standardize monitoring with opencensus
+- [ ] harden security (container user/group)
+- [ ] add policy on resources limit (CPU, memory, number of instance etc)
 
 ## Start
 
